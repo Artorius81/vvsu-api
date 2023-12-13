@@ -21,7 +21,7 @@ CONFIG = {
 }
 
 
-@cache.cached(timeout=300, key_prefix=make_cache_key)
+@cache.cached(timeout=28800, key_prefix=make_cache_key)
 def time_table(login, password):
     url = 'https://cabinet.vvsu.ru/sign-in'
     headers = {
@@ -51,7 +51,7 @@ def time_table(login, password):
         return get_time_table(time_table_html)
 
 
-@cache.cached(timeout=300, key_prefix=make_cache_key)
+@cache.cached(timeout=28800, key_prefix=make_cache_key)
 def curriculum(login, password):
     url = 'https://cabinet.vvsu.ru/sign-in'
     headers = {
@@ -81,7 +81,7 @@ def curriculum(login, password):
         return get_curriculum(curriculum_html)
 
 
-@cache.cached(timeout=300, key_prefix=make_cache_key)
+@cache.cached(timeout=28800, key_prefix=make_cache_key)
 def my_group(login, password):
     url = 'https://cabinet.vvsu.ru/sign-in'
     headers = {
@@ -111,7 +111,7 @@ def my_group(login, password):
         return get_group(my_group_html)
 
 
-@cache.cached(timeout=300, key_prefix=make_cache_key)
+@cache.cached(timeout=28800, key_prefix=make_cache_key)
 def results(login, password):
     url = 'https://cabinet.vvsu.ru/sign-in'
     headers = {
