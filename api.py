@@ -1,3 +1,4 @@
+import urllib
 from flask import Flask, request, jsonify
 from flask_caching import Cache
 import logging
@@ -21,7 +22,14 @@ CONFIG = {
 }
 
 
-@cache.cached(timeout=600, key_prefix='get_time_table')
+def make_cache_key(*args, **kwargs):
+    path = request.path
+    args = str(hash(frozenset(request.args.items())))
+    login = request.json.get('username', 'default')
+    return (path + args + login).encode('utf-8')
+
+
+@cache.cached(timeout=300, key_prefix=make_cache_key)
 def time_table(login, password):
     url = 'https://cabinet.vvsu.ru/sign-in'
     headers = {
@@ -51,7 +59,7 @@ def time_table(login, password):
         return get_time_table(time_table_html)
 
 
-@cache.cached(timeout=600, key_prefix='get_results')
+@cache.cached(timeout=300, key_prefix=make_cache_key)
 def results(login, password):
     url = 'https://cabinet.vvsu.ru/sign-in'
     headers = {
