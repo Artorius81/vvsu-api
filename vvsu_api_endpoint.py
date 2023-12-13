@@ -1,8 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_caching import Cache
 import logging
 
-from functions import *
+from functions import validate_remote_login, time_table, results, curriculum, my_group
 
 app = Flask(__name__)
 app.config['CACHE_TYPE'] = 'simple'

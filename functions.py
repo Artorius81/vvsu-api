@@ -1,10 +1,16 @@
 from flask import request
-from vvsu_api_endpoint import REMOTE_API_URL, CONFIG, cache
+from vvsu_api_endpoint import cache
 
 import requests
 from lxml import etree
 
 from parse import get_time_table, get_curriculum, get_group, get_results
+
+REMOTE_API_URL = 'https://api.vvsu.ru/services/api/restlogin'
+
+CONFIG = {
+    "USER_AGENT": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+}
 
 
 def make_cache_key(*args, **kwargs):
