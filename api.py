@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
+from flask_caching import Cache
 import logging
-import json
 
 import requests
 from lxml import etree
@@ -8,18 +8,21 @@ from lxml import etree
 from parse import get_results, get_time_table
 
 app = Flask(__name__)
+app.config['CACHE_TYPE'] = 'simple'
+cache = Cache(app)
 
 REMOTE_API_URL = 'https://api.vvsu.ru/services/api/restlogin'
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-with open('config.json', 'r', encoding='utf-8') as file:
-    CONFIG = json.load(file)
+CONFIG = {
+    "USER_AGENT": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+}
 
 
+@cache.cached(timeout=600, key_prefix='get_time_table')
 def time_table(login, password):
-    # Выполнение вашего кода на основе логина и пароля
     url = 'https://cabinet.vvsu.ru/sign-in'
     headers = {
         'User-Agent': CONFIG['USER_AGENT']
@@ -48,8 +51,8 @@ def time_table(login, password):
         return get_time_table(time_table_html)
 
 
+@cache.cached(timeout=600, key_prefix='get_results')
 def results(login, password):
-    # Выполнение вашего кода на основе логина и пароля
     url = 'https://cabinet.vvsu.ru/sign-in'
     headers = {
         'User-Agent': CONFIG['USER_AGENT']
@@ -79,11 +82,9 @@ def results(login, password):
 
 
 def validate_remote_login(login, password):
-    # Отправляем запрос на удаленный сервер
     response = requests.post(REMOTE_API_URL, json={'username': login, 'password': password})
     remote_result = response.json()
 
-    # Проверяем, успешен ли вход на удаленном сервере
     if remote_result.get('success', False):
         return True
     else:
