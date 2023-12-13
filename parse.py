@@ -141,3 +141,68 @@ def get_results(html):
         semester_results = parse_semester_results(semester_div)
         _results[semester_num] = semester_results
     return _results
+
+
+# CURRICULUM
+def get_curriculum(html):
+    tree = etree.fromstring(html, etree.HTMLParser())
+    semester_div_ids = tree.xpath("//*[@id='PlanDetails']//div[contains(@id, 'tabs-')]/@id")
+    semester_wise_data = {}
+
+    for div_id in semester_div_ids:
+        rows = tree.xpath(f"//div[@id='{div_id}']//tr")
+        disciplines, departments, teachers, attestations = [], [], [], []
+        for row in rows[1:]:
+            discipline = row.xpath("td[1]/a/text()")
+            department = row.xpath("td[2]/text()")
+            teacher = row.xpath("td[3]//a/text()")
+            attestation = row.xpath("td[contains(@class, 'text-left')]/text()")
+            if discipline:
+                disciplines.append(discipline[0])
+            if department:
+                departments.append(department[0].strip())
+            if teacher:
+                teachers.append(teacher[0])
+            if attestation:
+                filtered_attestation = [a for a in attestation if a in ["Э", "З", "ДЗ", "ЗП", "ЗПб"]]
+                if filtered_attestation:
+                    attestations.extend(filtered_attestation)
+        semester_number = div_id.split('-')[-1]
+        semester_wise_data[f"semester{semester_number}"] = {
+            "discipline": disciplines,
+            "department": departments,
+            "teacher": teachers,
+            "attestation": attestations
+        }
+
+    return semester_wise_data
+
+
+# MY_GROUP
+def get_group(html):
+    tree = etree.fromstring(html, etree.HTMLParser())
+    cards = tree.xpath("//*[@id='PlanDetails']//div[contains(@class, 'card')]")
+    extracted_data = []
+
+    for card in cards:
+        photo_element = card.xpath(".//img[contains(@class, 'card-img-top')]/@src")
+        photo = photo_element[0] if photo_element else None
+
+        if not photo:  # Skip the entry if photo is null
+            continue
+
+        fullname_element = card.xpath(".//h6/text()")
+        fullname = fullname_element[0].strip() if fullname_element else None
+
+        email_element = card.xpath(".//a/text()")
+        email = email_element[0].strip() if email_element else None
+
+        card_data = {
+            "photo": photo,
+            "fullname": fullname,
+            "email": email
+        }
+
+        extracted_data.append(card_data)
+
+    return extracted_data
