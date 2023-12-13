@@ -176,7 +176,7 @@ def get_curriculum(html):
             "attestation": attestations
         }
 
-        data.append(semester_wise_data)
+    data.append(semester_wise_data)
 
     return data
 
