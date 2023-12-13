@@ -1,5 +1,5 @@
 from flask import request
-from api import REMOTE_API_URL, CONFIG, cache
+from vvsu_api_endpoint import REMOTE_API_URL, CONFIG, cache
 
 import requests
 from lxml import etree
