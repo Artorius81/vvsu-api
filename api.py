@@ -7,7 +7,7 @@ from lxml import etree
 import logging
 
 from functions import validate_remote_login, make_cache_key
-from parse import get_results, get_time_table, get_curriculum, get_group
+from parse import get_results, get_time_table, get_curriculum, get_group, get_main
 
 app = Flask(__name__)
 app.config['CACHE_TYPE'] = 'simple'
@@ -21,7 +21,7 @@ CONFIG = {
 }
 
 
-@cache.cached(timeout=28800, key_prefix=make_cache_key)
+@cache.cached(timeout=43200, key_prefix=make_cache_key)
 def time_table(login, password):
     url = 'https://cabinet.vvsu.ru/sign-in'
     headers = {
@@ -51,7 +51,7 @@ def time_table(login, password):
         return get_time_table(time_table_html)
 
 
-@cache.cached(timeout=28800, key_prefix=make_cache_key)
+@cache.cached(timeout=43200, key_prefix=make_cache_key)
 def curriculum(login, password):
     url = 'https://cabinet.vvsu.ru/sign-in'
     headers = {
@@ -81,7 +81,7 @@ def curriculum(login, password):
         return get_curriculum(curriculum_html)
 
 
-@cache.cached(timeout=28800, key_prefix=make_cache_key)
+@cache.cached(timeout=43200, key_prefix=make_cache_key)
 def my_group(login, password):
     url = 'https://cabinet.vvsu.ru/sign-in'
     headers = {
@@ -111,7 +111,7 @@ def my_group(login, password):
         return get_group(my_group_html)
 
 
-@cache.cached(timeout=28800, key_prefix=make_cache_key)
+@cache.cached(timeout=43200, key_prefix=make_cache_key)
 def results(login, password):
     url = 'https://cabinet.vvsu.ru/sign-in'
     headers = {
@@ -139,6 +139,60 @@ def results(login, password):
         results_html = response.text
 
         return get_results(results_html)
+
+
+@cache.cached(timeout=0, key_prefix=make_cache_key)
+def my_main(login, password):
+    url = 'https://cabinet.vvsu.ru/sign-in'
+    headers = {
+        'User-Agent': CONFIG['USER_AGENT']
+    }
+
+    with requests.Session() as session:
+        session.headers = headers
+        response = session.get(url)
+
+        tree = etree.fromstring(response.text, etree.HTMLParser())
+        challenge = tree.xpath('//input[@name="challenge"]/@value')[0]
+        post_url = f'https://www.vvsu.ru/openid/login?/login&login_challenge={challenge}'
+        data = {
+            'challenge': challenge,
+            'login': login,
+            'password': password
+        }
+        response = session.post(post_url, data)
+
+        redirect_url = response.json()['location']
+        session.get(redirect_url)
+
+        response = session.get('https://cabinet.vvsu.ru')
+        main_html = response.text
+
+        return get_main(main_html)
+
+
+@app.route('/api/main_info', methods=['POST'])
+def api_main():
+    data = request.get_json()
+
+    if 'username' in data and 'password' in data:
+        login = data['username']
+        password = data['password']
+
+        if validate_remote_login(login, password):
+            result = my_main(login, password)
+        else:
+            result = {
+                'status': 'error',
+                'message': 'Неверный логин или пароль.'
+            }
+    else:
+        result = {
+            'status': 'error',
+            'message': 'Отсутствует логин или пароль в запросе.'
+        }
+
+    return jsonify(result)
 
 
 @app.route('/api/results', methods=['POST'])

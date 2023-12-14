@@ -1,3 +1,5 @@
+import re
+
 from lxml import etree
 
 
@@ -206,3 +208,36 @@ def get_group(html):
         extracted_data.append(card_data)
 
     return extracted_data
+
+
+# MAIN
+def get_main(html):
+    tree = etree.fromstring(html, etree.HTMLParser())
+    fio = tree.xpath("/html/body/div[3]/div/div[1]/div/div[1]/div/div/div[1]/div/h1/text()")
+    email = tree.xpath("/html/body/div[3]/div/div[1]/div/div[1]/div/div/div[2]/div[1]/div[2]/a/text()")
+    group = tree.xpath("/html/body/div[3]/div/div[1]/div/div[1]/div/div/div[3]/div[1]/div[2]/text()")
+
+    additional_info_parts = tree.xpath(
+        "/html/body/div[3]/div/div[1]/div/div[1]/div/div/div[3]/div[3]/div[2]/span//text()")
+    additional_info_cleaned = [text.strip() for text in additional_info_parts if
+                               text.strip()]
+
+    additional_info_field1 = additional_info_cleaned[0] if len(additional_info_cleaned) > 0 else None
+    additional_info_field2 = additional_info_cleaned[1] if len(additional_info_cleaned) > 1 else None
+    additional_info_field3 = additional_info_cleaned[2] if len(additional_info_cleaned) > 2 else None
+
+    style_element = tree.xpath("/html/body/div[3]/div/div[1]/div/div[2]/div/div/@style")
+    url_match = re.search(r'url\((.*?)\)', style_element[0].strip()) if style_element else None
+    url = url_match.group(1) if url_match else None
+
+    data = {
+        "fullname": fio[0].strip() if fio else None,
+        "email": email[0].strip() if email and not "Регистрация почты" else None,
+        "group": group[0].strip() if group else None,
+        "specialty": additional_info_field1,
+        "institute": additional_info_field2,
+        "department": additional_info_field3,
+        "photo": url
+    }
+
+    return data
