@@ -148,7 +148,6 @@ def get_curriculum(html):
     tree = etree.fromstring(html, etree.HTMLParser())
     semester_div_ids = tree.xpath("//*[@id='PlanDetails']//div[contains(@id, 'tabs-')]/@id")
     semester_wise_data = {}
-    data = []
 
     for div_id in semester_div_ids:
         rows = tree.xpath(f"//div[@id='{div_id}']//tr")
@@ -176,9 +175,7 @@ def get_curriculum(html):
             "attestation": attestations
         }
 
-    data.append(semester_wise_data)
-
-    return data
+    return [semester_wise_data]
 
 
 # MY_GROUP
