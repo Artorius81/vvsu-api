@@ -30,7 +30,14 @@ def parse_title_vebinar(td):
 
 
 def parse_teacher(td):
-    teacher = td.xpath('./a/text()')[0].strip()
+    teacher_elements = td.xpath('./a/text()')
+    teacher_vacancy = td.text.strip()
+    if teacher_elements:
+        teacher = teacher_elements[0].strip()
+    elif teacher_vacancy:
+        teacher = teacher_vacancy
+    else:
+        teacher = None
     return teacher
 
 

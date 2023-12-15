@@ -179,13 +179,7 @@ def api_main():
         login = data['username']
         password = data['password']
 
-        if validate_remote_login(login, password):
-            result = my_main(login, password)
-        else:
-            result = {
-                'status': 'error',
-                'message': 'Неверный логин или пароль.'
-            }
+        result = my_main(login, password)
     else:
         result = {
             'status': 'error',
