@@ -253,32 +253,33 @@ def get_main(html):
 # PAYMENTS
 def get_grants(html):
     tree = etree.fromstring(html, etree.HTMLParser())
+
     data = {}
 
-    tab_names = tree.xpath("//*[@id='tabs']/div/ul/li/a/b/text()")
+    tab_names_xpath = "//*[@id='tabs']/div/ul/li/a/b/text()"
 
     excluded_headers = ["Период", "Сумма, руб", "Начисления"]
 
+    tab_names = tree.xpath(tab_names_xpath)
+
     for tab_name in tab_names:
-        content_elements = tree.xpath(f"//*[@id='tabs-{tab_name}']//text()")
+        tab_content_xpath = f"//*[@id='tabs-{tab_name}']//text()"
+
+        content_elements = tree.xpath(tab_content_xpath)
         cleaned_content = [item.strip() for item in content_elements if
                            item.strip() and item.strip() not in excluded_headers]
 
-        tab_data = {
-            "type": [],
-            "period": [],
-            "sum": []
-        }
+        tab_data = []
 
         for i in range(0, len(cleaned_content), 3):
-            if i < len(cleaned_content):
-                tab_data["type"].append(cleaned_content[i])
-            if i + 1 < len(cleaned_content):
-                tab_data["period"].append(cleaned_content[i + 1])
-            if i + 2 < len(cleaned_content):
-                tab_data["sum"].append(cleaned_content[i + 2])
+            tab_entry = {
+                "type": cleaned_content[i] if i < len(cleaned_content) else "",
+                "period": cleaned_content[i + 1] if i + 1 < len(cleaned_content) else "",
+                "sum": cleaned_content[i + 2] if i + 2 < len(cleaned_content) else ""
+            }
+            tab_data.append(tab_entry)
 
-        data[tab_name] = [tab_data]
+        data[tab_name] = tab_data
 
     return data
 
