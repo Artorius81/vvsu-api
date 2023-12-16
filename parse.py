@@ -262,29 +262,31 @@ def get_grants(html):
 
     tab_names = tree.xpath(tab_names_xpath)
 
-    for tab_name in tab_names:
-        tab_content_xpath = f"//*[@id='tabs-{tab_name}']//text()"
+    # Get the last element in tab_names
+    last_tab_name = tab_names[-1]
 
-        content_elements = tree.xpath(tab_content_xpath)
-        cleaned_content = [item.strip() for item in content_elements if
-                           item.strip() and item.strip() not in excluded_headers]
+    tab_content_xpath = f"//*[@id='tabs-{last_tab_name}']//text()"
 
-        tab_data = {
-            "year": tab_name,
-            "type": [],
-            "period": [],
-            "sum": []
-        }
+    content_elements = tree.xpath(tab_content_xpath)
+    cleaned_content = [item.strip() for item in content_elements if
+                       item.strip() and item.strip() not in excluded_headers]
 
-        for i in range(0, len(cleaned_content), 3):
-            if i < len(cleaned_content):
-                tab_data["type"].append(cleaned_content[i])
-            if i + 1 < len(cleaned_content):
-                tab_data["period"].append(cleaned_content[i + 1])
-            if i + 2 < len(cleaned_content):
-                tab_data["sum"].append(cleaned_content[i + 2])
+    tab_data = {
+        "year": last_tab_name,
+        "type": [],
+        "period": [],
+        "sum": []
+    }
 
-        data[tab_name] = [tab_data]
+    for i in range(0, len(cleaned_content), 3):
+        if i < len(cleaned_content):
+            tab_data["type"].append(cleaned_content[i])
+        if i + 1 < len(cleaned_content):
+            tab_data["period"].append(cleaned_content[i + 1])
+        if i + 2 < len(cleaned_content):
+            tab_data["sum"].append(cleaned_content[i + 2])
+
+    data[last_tab_name] = [tab_data]
 
     return data
 
