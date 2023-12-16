@@ -254,8 +254,6 @@ def get_main(html):
 def get_grants(html):
     tree = etree.fromstring(html, etree.HTMLParser())
 
-    data = {}
-
     tab_names_xpath = "//*[@id='tabs']/div/ul/li/a/b/text()"
 
     excluded_headers = ["Период", "Сумма, руб", "Начисления"]
@@ -286,9 +284,7 @@ def get_grants(html):
         if i + 2 < len(cleaned_content):
             tab_data["sum"].append(cleaned_content[i + 2])
 
-    data[last_tab_name] = [tab_data]
-
-    return data
+    return tab_data
 
 
 def get_payment(html):
