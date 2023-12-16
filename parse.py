@@ -248,3 +248,84 @@ def get_main(html):
     }
 
     return data
+
+
+# PAYMENTS
+def get_grants(html):
+    tree = etree.fromstring(html, etree.HTMLParser())
+    data = {}
+
+    tab_names = tree.xpath("//*[@id='tabs']/div/ul/li/a/b/text()")
+
+    excluded_headers = ["Период", "Сумма, руб", "Начисления"]
+
+    for tab_name in tab_names:
+        content_elements = tree.xpath(f"//*[@id='tabs-{tab_name}']//text()")
+        cleaned_content = [item.strip() for item in content_elements if
+                           item.strip() and item.strip() not in excluded_headers]
+
+        tab_data = {
+            "type": [],
+            "period": [],
+            "sum": []
+        }
+
+        for i in range(0, len(cleaned_content), 3):
+            if i < len(cleaned_content):
+                tab_data["type"].append(cleaned_content[i])
+            if i + 1 < len(cleaned_content):
+                tab_data["period"].append(cleaned_content[i + 1])
+            if i + 2 < len(cleaned_content):
+                tab_data["sum"].append(cleaned_content[i + 2])
+
+        data[tab_name] = [tab_data]
+
+    return data
+
+
+def get_payment(html):
+    tree = etree.fromstring(html, etree.HTMLParser())
+    field_names = [
+        "plan_code",
+        "duration",
+        "status",
+        "total_cost",
+        "monthly_payment",
+        "total_paid",
+        "remaining_cost",
+        "cost_to_end"
+    ]
+
+    primary_xpath = "//*[@id='PlanDetails']/div/div/div/div"
+    num_divs = len(tree.xpath(primary_xpath))
+
+    extracted_data = []
+
+    if num_divs > 0:
+        for i in range(1, num_divs + 1, 2):
+            if (i + 1) <= num_divs:
+                xpath_odd = f"//*[@id='PlanDetails']/div/div/div/div[{i}]//p/text()"
+                xpath_even = f"//*[@id='PlanDetails']/div/div/div/div[{i + 1}]//p/text()"
+
+                p_tag_odd = tree.xpath(xpath_odd)
+                p_tag_even = tree.xpath(xpath_even)
+
+                concatenated_tag = ''
+                if p_tag_odd:
+                    concatenated_tag += p_tag_odd[0].strip()
+                if p_tag_even:
+                    concatenated_tag += ' ' + p_tag_even[0].strip()
+                if concatenated_tag:
+                    extracted_data.append(concatenated_tag)
+    else:
+        alternate_xpath = "//*[@id='PlanDetails']/div/p/strong"
+        strong_tags = tree.xpath(alternate_xpath)
+
+        for tag in strong_tags:
+            cleaned_tag = tag.text.strip() if tag.text else None
+            if cleaned_tag:
+                extracted_data.append(cleaned_tag)
+
+    data = {field_names[index]: value for index, value in enumerate(extracted_data) if index < len(field_names)}
+
+    return data
