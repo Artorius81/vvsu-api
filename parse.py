@@ -269,17 +269,22 @@ def get_grants(html):
         cleaned_content = [item.strip() for item in content_elements if
                            item.strip() and item.strip() not in excluded_headers]
 
-        tab_data = []
+        tab_data = {
+            "year": tab_name,
+            "type": [],
+            "period": [],
+            "sum": []
+        }
 
         for i in range(0, len(cleaned_content), 3):
-            tab_entry = {
-                "type": cleaned_content[i] if i < len(cleaned_content) else "",
-                "period": cleaned_content[i + 1] if i + 1 < len(cleaned_content) else "",
-                "sum": cleaned_content[i + 2] if i + 2 < len(cleaned_content) else ""
-            }
-            tab_data.append(tab_entry)
+            if i < len(cleaned_content):
+                tab_data["type"].append(cleaned_content[i])
+            if i + 1 < len(cleaned_content):
+                tab_data["period"].append(cleaned_content[i + 1])
+            if i + 2 < len(cleaned_content):
+                tab_data["sum"].append(cleaned_content[i + 2])
 
-        data[tab_name] = tab_data
+        data[tab_name] = [tab_data]
 
     return data
 
