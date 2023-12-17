@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 from lxml import etree
 
@@ -401,6 +402,66 @@ def get_internet_pay(html):
                     cleaned_content) else "Данные по оплате за интернет отсутствуют",
                 "period": cleaned_content[i + 1] if i + 1 < len(cleaned_content) else "",
                 "sum": cleaned_content[i + 2] if i + 2 < len(cleaned_content) else ""
+            }
+            tab_data.append(tab_entry)
+
+    data = tab_data
+
+    return data
+
+
+def get_traffic(html):
+    month_dict = {
+        "янв": "01",
+        "фев": "02",
+        "мар": "03",
+        "апр": "04",
+        "май": "05",
+        "июн": "06",
+        "июл": "07",
+        "авг": "08",
+        "сен": "09",
+        "окт": "10",
+        "ноя": "11",
+        "дек": "12"
+    }
+
+    def transform_date(input_date):
+        current_year = datetime.now().year
+        month_num = month_dict.get(input_date)
+        if month_num is None:
+            return "Неверный месяц"
+        formatted_date = f"{month_num}-{current_year}"
+        return formatted_date
+
+    tree = etree.fromstring(html, etree.HTMLParser())
+
+    tab_names_xpath = "//*[@id='tabs']/div/ul/li/a/b/text()"
+
+    excluded_headers = ["Дата", "Трафик, Mb"]
+
+    tab_names = tree.xpath(tab_names_xpath)
+
+    if not tab_names:
+        alternative_tab_name_xpath = "//*[@id='cabinetMain']/p/strong/text()"
+        alternative_tab_name = tree.xpath(alternative_tab_name_xpath)[0].strip()
+        tab_data = [{"period": alternative_tab_name}]
+    else:
+        last_name = tab_names[-1]
+        last_name_transformed = transform_date(last_name)
+
+        tab_content_xpath = f"//*[@id='tabs-{last_name_transformed}']//text()"
+
+        content_elements = tree.xpath(tab_content_xpath)
+        cleaned_content = [item.strip() for item in content_elements if
+                           item.strip() and item.strip() not in excluded_headers]
+
+        tab_data = []
+
+        for i in range(0, len(cleaned_content), 2):
+            tab_entry = {
+                "period": cleaned_content[i] if i < len(cleaned_content) else "Данные по интернет-трафику отсутствуют",
+                "traffic": cleaned_content[i+1] if i+1 < len(cleaned_content) else ""
             }
             tab_data.append(tab_entry)
 
