@@ -369,3 +369,41 @@ def get_dormitory(html):
     data = tab_data
 
     return data
+
+
+def get_internet_pay(html):
+    tree = etree.fromstring(html, etree.HTMLParser())
+
+    tab_names_xpath = "//*[@id='tabs']/div/ul/li/a/b/text()"
+
+    excluded_headers = ["Период", "Сумма, руб", "Платеж"]
+
+    tab_names = tree.xpath(tab_names_xpath)
+
+    if not tab_names:
+        alternative_tab_name_xpath = "//*[@id='cabinetMain']/p/strong/text()"
+        alternative_tab_name = tree.xpath(alternative_tab_name_xpath)[0].strip()
+        tab_data = [{"type": alternative_tab_name}]
+    else:
+        last_name = tab_names[-1]
+
+        tab_content_xpath = f"//*[@id='tabs-{last_name}']//text()"
+
+        content_elements = tree.xpath(tab_content_xpath)
+        cleaned_content = [item.strip() for item in content_elements if
+                           item.strip() and item.strip() not in excluded_headers]
+
+        tab_data = []
+
+        for i in range(1, len(cleaned_content), 3):
+            tab_entry = {
+                "type": cleaned_content[i] if i < len(
+                    cleaned_content) else "Данные по оплате за интернет отсутствуют",
+                "period": cleaned_content[i + 1] if i + 1 < len(cleaned_content) else "",
+                "sum": cleaned_content[i + 2] if i + 2 < len(cleaned_content) else ""
+            }
+            tab_data.append(tab_entry)
+
+    data = tab_data
+
+    return data

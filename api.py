@@ -8,7 +8,7 @@ import logging
 
 from functions import validate_remote_login, make_cache_key
 from parse import get_results, get_time_table, get_curriculum, get_group, get_main, get_grants, get_payment, \
-    get_dormitory
+    get_dormitory, get_internet_pay
 
 app = Flask(__name__)
 app.config['CACHE_TYPE'] = 'simple'
@@ -232,6 +232,36 @@ def dormitory(login, password):
         return get_dormitory(dormitory_html)
 
 
+@cache.cached(timeout=43200, key_prefix=make_cache_key)
+def internet_pay(login, password):
+    url = 'https://cabinet.vvsu.ru/sign-in'
+    headers = {
+        'User-Agent': CONFIG['USER_AGENT']
+    }
+
+    with requests.Session() as session:
+        session.headers = headers
+        response = session.get(url)
+
+        tree = etree.fromstring(response.text, etree.HTMLParser())
+        challenge = tree.xpath('//input[@name="challenge"]/@value')[0]
+        post_url = f'https://www.vvsu.ru/openid/login?/login&login_challenge={challenge}'
+        data = {
+            'challenge': challenge,
+            'login': login,
+            'password': password
+        }
+        response = session.post(post_url, data)
+
+        redirect_url = response.json()['location']
+        session.get(redirect_url)
+
+        response = session.get('https://cabinet.vvsu.ru/payment/internet/')
+        internet_pay_html = response.text
+
+        return get_internet_pay(internet_pay_html)
+
+
 @cache.cached(timeout=0, key_prefix=make_cache_key)
 def my_main(login, password):
     url = 'https://cabinet.vvsu.ru/sign-in'
@@ -434,6 +464,30 @@ def api_dormitory():
 
         if validate_remote_login(login, password):
             result = dormitory(login, password)
+        else:
+            result = {
+                'status': 'error',
+                'message': 'Неверный логин или пароль.'
+            }
+    else:
+        result = {
+            'status': 'error',
+            'message': 'Отсутствует логин или пароль в запросе.'
+        }
+
+    return jsonify(result)
+
+
+@app.route('/api/payment/internet', methods=['POST'])
+def api_internet_pay():
+    data = request.get_json()
+
+    if 'username' in data and 'password' in data:
+        login = data['username']
+        password = data['password']
+
+        if validate_remote_login(login, password):
+            result = internet_pay(login, password)
         else:
             result = {
                 'status': 'error',
