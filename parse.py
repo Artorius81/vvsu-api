@@ -161,31 +161,66 @@ def get_curriculum(html):
 
     for div_id in semester_div_ids:
         rows = tree.xpath(f"//div[@id='{div_id}']//tr")
-        disciplines, departments, teachers, attestations = [], [], [], []
+        data = []
+
         for row in rows[1:]:
-            discipline = row.xpath("td[1]/a/text()")
-            department = row.xpath("td[2]/text()")
-            teacher = row.xpath("td[3]//a/text()")
+            discipline = row.xpath("td[1]//text()")
+            department = row.xpath("td[2]//text()")
+            teacher_elements = row.xpath("(td[3]//a[1]/text() | td[3]//text()[1]) | (td[3]//a[1] | td[3])")
             attestation = row.xpath("td[contains(@class, 'text-left')]/text()")
+
             if discipline:
-                disciplines.append(discipline[0])
+                disciplines = ' '.join(discipline).strip()
+            else:
+                disciplines = None
+
             if department:
-                departments.append(department[0].strip())
-            if teacher:
-                teachers.append(teacher[0])
+                department_text = department[0].strip()
+                if department_text:
+                    departments = department_text
+                else:
+                    departments = None
+            else:
+                departments = None
+
+            if teacher_elements:
+                teacher_text = ' '.join([elem.strip() for elem in teacher_elements if isinstance(elem, str)]).strip()
+                if teacher_text:
+                    teacher_match = re.search(r'\w+\s[А-ЯЁ]\.[А-ЯЁ]\.', teacher_text)
+                    if teacher_match:
+                        teachers = teacher_match.group()
+                    else:
+                        teachers = None
+                else:
+                    teachers = None
+            else:
+                teachers = None
+
             if attestation:
                 filtered_attestation = [a for a in attestation if a in ["Э", "З", "ДЗ", "ЗП", "ЗПб"]]
                 if filtered_attestation:
-                    attestations.extend(filtered_attestation)
-        semester_number = div_id.split('-')[-1]
-        semester_wise_data[f"semester{semester_number}"] = {
-            "discipline": disciplines,
-            "department": departments,
-            "teacher": teachers,
-            "attestation": attestations
-        }
+                    attestations = filtered_attestation[0]
+                else:
+                    attestations = None
+            else:
+                attestations = None
 
-    return [semester_wise_data]
+            # Check if all values are None and skip the entry if true
+            if all(val is None for val in [teachers, disciplines, departments, attestations]):
+                continue
+
+            entry = {
+                "teacher": teachers,
+                "discipline": disciplines,
+                "department": departments,
+                "attestation": attestations
+            }
+            data.append(entry)
+
+        semester_number = div_id.split('-')[-1]
+        semester_wise_data[semester_number] = data
+
+    return semester_wise_data
 
 
 # MY_GROUP
