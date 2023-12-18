@@ -262,7 +262,7 @@ def get_main(html):
     portfolio_link = tree.xpath('//*[@id="cnt"]/div/ul/li[10]/a/@href')
 
     if portfolio_link:
-        portfolio_url = portfolio_link[0]
+        portfolio_url = "https:" + portfolio_link[0]
     else:
         portfolio_url = None
 
