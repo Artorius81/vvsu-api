@@ -259,6 +259,12 @@ def get_main(html):
     fio = tree.xpath("/html/body/div[3]/div/div[1]/div/div[1]/div/div/div[1]/div/h1/text()")
     email = tree.xpath("/html/body/div[3]/div/div[1]/div/div[1]/div/div/div[2]/div[1]/div[2]/a/text()")
     group = tree.xpath("/html/body/div[3]/div/div[1]/div/div[1]/div/div/div[3]/div[1]/div[2]/text()")
+    portfolio_link = tree.xpath('//*[@id="cnt"]/div/ul/li[10]/a/@href')
+
+    if portfolio_link:
+        portfolio_url = portfolio_link[0]
+    else:
+        portfolio_url = None
 
     additional_info_parts = tree.xpath(
         "/html/body/div[3]/div/div[1]/div/div[1]/div/div/div[3]/div[3]/div[2]/span//text()")
@@ -275,12 +281,13 @@ def get_main(html):
 
     data = {
         "fullname": fio[0].strip() if fio else None,
-        "email": email[0].strip() if email else None,
+        "email": email[0].strip() if email and not "Регистрация почты" else None,
         "group": group[0].strip() if group else None,
         "specialty": additional_info_field1,
         "institute": additional_info_field2,
         "department": additional_info_field3,
-        "photo": url
+        "photo": url,
+        "portfolioURL": portfolio_url
     }
 
     return data
