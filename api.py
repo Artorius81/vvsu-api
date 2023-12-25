@@ -557,4 +557,4 @@ def api_internet_traffic():
 
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(port=8888)
