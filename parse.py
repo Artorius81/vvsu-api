@@ -281,7 +281,7 @@ def get_main(html):
 
     data = {
         "fullname": fio[0].strip() if fio else None,
-        "email": email[0].strip() if email and not "Регистрация почты" else None,
+        "email": email[0].strip() if email else None,
         "group": group[0].strip() if group else None,
         "specialty": additional_info_field1,
         "institute": additional_info_field2,
