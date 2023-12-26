@@ -503,10 +503,99 @@ def get_traffic(html):
         for i in range(0, len(cleaned_content), 2):
             tab_entry = {
                 "period": cleaned_content[i] if i < len(cleaned_content) else "Данные по интернет-трафику отсутствуют",
-                "traffic": cleaned_content[i+1] if i+1 < len(cleaned_content) else ""
+                "traffic": cleaned_content[i + 1] if i + 1 < len(cleaned_content) else ""
             }
             tab_data.append(tab_entry)
 
     data = tab_data
 
+    return data
+
+
+# MY_TASKS
+def get_forms(html):
+    tree = etree.fromstring(html, etree.HTMLParser())
+    table_xpath = '//*[@id="cabinetMain"]/div/table/tbody'
+    rows = tree.xpath(table_xpath + '/tr')
+    data = []
+    for row in rows:
+        cells = row.xpath('./td')
+        discipline = cells[0].xpath('.//text()')[0].strip() if len(cells) > 0 else None
+        session_type = cells[1].xpath('.//text()')[0].strip() if len(cells) > 1 else None
+        teacher = cells[2].xpath('.//text()')[0].strip() if len(cells) > 2 else None
+        anketa_link = cells[3].xpath('.//a/@href')
+        anketa = 'https://cabinet.vvsu.ru' + anketa_link[0].strip() if anketa_link else None
+        data.append({
+            'discipline': discipline,
+            'type': session_type,
+            'teacher': teacher,
+            'form_link': anketa
+        })
+    return data
+
+
+def get_projects(html):
+    tree = etree.fromstring(html, etree.HTMLParser())
+    rows_alt = tree.xpath('//*[@id="cabinetMain"]/h4')
+    data = []
+    if rows_alt:
+        xpath_alt = '//*[@id="cabinetMain"]/div[3]/div/div/table//tr'
+        rows = tree.xpath(xpath_alt)
+        if rows:
+            for row in rows[1:]:
+                cells = row.xpath('./td')
+                project_name = cells[0].xpath('.//a/text()')[0].strip() if len(cells) > 0 and cells[0].xpath(
+                    './/a/text()') else "Проекты по выбору отсутствуют"
+                project_link = 'https://cabinet.vvsu.ru' + cells[0].xpath('.//a/@href')[0].strip() if len(cells) > 0 and \
+                                                                                                      cells[0].xpath(
+                                                                                                          './/a/@href') else None
+                project_type = cells[1].xpath('.//text()')[0].strip() if len(cells) > 1 and cells[1].xpath(
+                    './/text()') else None
+                project_leader = cells[2].xpath('.//text()')[0].strip() if len(cells) > 2 and cells[2].xpath(
+                    './/text()') else None
+                project_action = cells[3].xpath('.//text()')[0].strip() if len(cells) > 3 and cells[3].xpath(
+                    './/text()') else None
+
+                data.append({
+                    'prj_name': project_name,
+                    'prj_link': project_link,
+                    'prj_type': project_type,
+                    'prj_leader': project_leader,
+                    'prj_time': project_action
+                })
+        else:
+            no_prj = tree.xpath('//*[@id="cabinetMain"]/div[2]/div/p/strong/text()')[0].strip()
+            data.append({
+                'prj_name': no_prj
+            })
+    elif not rows_alt:
+        xpath = '//*[@id="cabinetMain"]/div[2]/div/div/table//tr'
+        rows = tree.xpath(xpath)
+        if rows:
+            for row in rows[1:]:
+                cells = row.xpath('./td')
+                project_name = cells[0].xpath('.//a/text()')[0].strip() if len(cells) > 0 and cells[0].xpath(
+                    './/a/text()') else None
+                project_link = 'https://cabinet.vvsu.ru' + cells[0].xpath('.//a/@href')[0].strip() if len(cells) > 0 and \
+                                                                                                      cells[0].xpath(
+                                                                                                          './/a/@href') else None
+                project_type = cells[1].xpath('.//text()')[0].strip() if len(cells) > 1 and cells[1].xpath(
+                    './/text()') else None
+                project_leader = cells[2].xpath('.//text()')[0].strip() if len(cells) > 2 and cells[2].xpath(
+                    './/text()') else None
+                project_action = cells[3].xpath('.//text()')[0].strip() if len(cells) > 3 and cells[3].xpath(
+                    './/text()') else None
+
+                data.append({
+                    'prj_name': project_name,
+                    'prj_link': project_link,
+                    'prj_type': project_type,
+                    'prj_leader': project_leader,
+                    'prj_time': project_action
+                })
+        else:
+            no_prj = tree.xpath('//*[@id="cabinetMain"]/div[2]/div/p/strong/text()')[0].strip()
+            data.append({
+                'prj_name': no_prj
+            })
     return data

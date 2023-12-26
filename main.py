@@ -8,7 +8,7 @@ import logging
 
 from functions import validate_remote_login, make_cache_key
 from parse import get_results, get_time_table, get_curriculum, get_group, get_main, get_grants, get_payment, \
-    get_dormitory, get_internet_pay, get_traffic
+    get_dormitory, get_internet_pay, get_traffic, get_projects, get_forms
 
 app = Flask(__name__)
 app.config['CACHE_TYPE'] = 'simple'
@@ -292,7 +292,7 @@ def my_main(login, password):
         return get_main(main_html)
 
 
-@cache.cached(timeout=0, key_prefix=make_cache_key)
+@cache.cached(timeout=43200, key_prefix=make_cache_key)
 def traffic(login, password):
     url = 'https://cabinet.vvsu.ru/sign-in'
     headers = {
@@ -321,6 +321,64 @@ def traffic(login, password):
 
         return get_traffic(traffic_html)
 
+@cache.cached(timeout=43200, key_prefix=make_cache_key)
+def projects(login, password):
+    url = 'https://cabinet.vvsu.ru/sign-in'
+    headers = {
+        'User-Agent': CONFIG['USER_AGENT']
+    }
+
+    with requests.Session() as session:
+        session.headers = headers
+        response = session.get(url)
+
+        tree = etree.fromstring(response.text, etree.HTMLParser())
+        challenge = tree.xpath('//input[@name="challenge"]/@value')[0]
+        post_url = f'https://www.vvsu.ru/openid/login?/login&login_challenge={challenge}'
+        data = {
+            'challenge': challenge,
+            'login': login,
+            'password': password
+        }
+        response = session.post(post_url, data)
+
+        redirect_url = response.json()['location']
+        session.get(redirect_url)
+
+        response = session.get('https://cabinet.vvsu.ru/tasks/choiceproject/')
+        projects_html = response.text
+
+        return get_projects(projects_html)
+
+
+@cache.cached(timeout=43200, key_prefix=make_cache_key)
+def forms(login, password):
+    url = 'https://cabinet.vvsu.ru/sign-in'
+    headers = {
+        'User-Agent': CONFIG['USER_AGENT']
+    }
+
+    with requests.Session() as session:
+        session.headers = headers
+        response = session.get(url)
+
+        tree = etree.fromstring(response.text, etree.HTMLParser())
+        challenge = tree.xpath('//input[@name="challenge"]/@value')[0]
+        post_url = f'https://www.vvsu.ru/openid/login?/login&login_challenge={challenge}'
+        data = {
+            'challenge': challenge,
+            'login': login,
+            'password': password
+        }
+        response = session.post(post_url, data)
+
+        redirect_url = response.json()['location']
+        session.get(redirect_url)
+
+        response = session.get('https://cabinet.vvsu.ru/tasks/anketa/')
+        forms_html = response.text
+
+        return get_forms(forms_html)
 
 @app.route('/api/main_info', methods=['POST'])
 def api_main():
@@ -542,6 +600,54 @@ def api_internet_traffic():
 
         if validate_remote_login(login, password):
             result = traffic(login, password)
+        else:
+            result = {
+                'status': 'error',
+                'message': 'Неверный логин или пароль.'
+            }
+    else:
+        result = {
+            'status': 'error',
+            'message': 'Отсутствует логин или пароль в запросе.'
+        }
+
+    return jsonify(result)
+
+
+@app.route('/api/tasks/forms', methods=['POST'])
+def api_forms():
+    data = request.get_json()
+
+    if 'username' in data and 'password' in data:
+        login = data['username']
+        password = data['password']
+
+        if validate_remote_login(login, password):
+            result = forms(login, password)
+        else:
+            result = {
+                'status': 'error',
+                'message': 'Неверный логин или пароль.'
+            }
+    else:
+        result = {
+            'status': 'error',
+            'message': 'Отсутствует логин или пароль в запросе.'
+        }
+
+    return jsonify(result)
+
+
+@app.route('/api/tasks/projects', methods=['POST'])
+def api_projects():
+    data = request.get_json()
+
+    if 'username' in data and 'password' in data:
+        login = data['username']
+        password = data['password']
+
+        if validate_remote_login(login, password):
+            result = projects(login, password)
         else:
             result = {
                 'status': 'error',
