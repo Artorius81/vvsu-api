@@ -667,7 +667,8 @@ def api_projects():
 
 @app.route('/api/vk_parse', methods=['GET'])
 def api_vk_parse():
-    return get_wall_posts(group_name)
+    result = get_wall_posts(group_name)
+    return result
 
 
 if __name__ == '__main__':
