@@ -1,6 +1,6 @@
 # GIGA
 CREDENTIALS = 'Nzk2YTQ5NjQtZThjZi00ZDhjLThlNGUtYTUwNmFkNzA5ZDUzOmNhN2E2MTBlLTkwNjUtNDZjYS04YTg2LWQ2NGRiYzU4MWViZg=='
-PATH = "https://gu-st.ru/content/Other/doc/russian_trusted_root_ca.cer"
+PATH = "russian_trusted_root_ca.cer"
 
 # SUPABASE
 URL = "https://hgsbnelwjopuhevsglmm.supabase.co"
