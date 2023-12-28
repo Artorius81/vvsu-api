@@ -9,6 +9,7 @@ import logging
 from functions import validate_remote_login, make_cache_key
 from parse import get_results, get_time_table, get_curriculum, get_group, get_main, get_grants, get_payment, \
     get_dormitory, get_internet_pay, get_traffic, get_projects, get_forms
+from vk_parse import get_wall_posts
 
 app = Flask(__name__)
 app.config['CACHE_TYPE'] = 'simple'
@@ -20,6 +21,8 @@ logging.basicConfig(level=logging.INFO,
 CONFIG = {
     "USER_AGENT": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
 }
+
+group_name = 'vvsu_dv'
 
 
 @cache.cached(timeout=43200, key_prefix=make_cache_key)
@@ -660,6 +663,11 @@ def api_projects():
         }
 
     return jsonify(result)
+
+
+@app.route('/api/vk_parse', methods=['GET'])
+def api_vk_parse():
+    return get_wall_posts(group_name)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,10 @@
+# GIGA
+CREDENTIALS = 'Nzk2YTQ5NjQtZThjZi00ZDhjLThlNGUtYTUwNmFkNzA5ZDUzOmNhN2E2MTBlLTkwNjUtNDZjYS04YTg2LWQ2NGRiYzU4MWViZg=='
+PATH = "russian_trusted_root_ca.cer"
+
+# SUPABASE
+URL = "https://hgsbnelwjopuhevsglmm.supabase.co"
+KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhnc2JuZWx3am9wdWhldnNnbG1tIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY5NDc5ODcxNCwiZXhwIjoyMDEwMzc0NzE0fQ.l0LQs2V1serM8JomNcyYOtr5F56MHao0LivqJaJk6zg"
+
+# VK API
+TOKEN = 'vk1.a.KOIWBFmXerwYS8GQaDkmXV_jEaNil8Xwx0dEN21xM9FHpOTmyI2t_WQRfcT9WFJzlSPifkkF6_Ew1dZDnOE48qVf5fgBcPniymXnxbmfrkjhrBADmsI_9hZ9tgeript9qBcD_bBMd6DAQ0Dhra1K_2Lkunz-OYsG1SSm9kVJbC3s3sYoUZ-jvnBAmz65N_egpkjhWNR_w1ijyCNED67BOQ'
