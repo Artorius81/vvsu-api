@@ -461,8 +461,7 @@ def vk_parser(group_name):
                 new_posts_id.append(new_post_id)
 
         if not new_posts_id:
-            print(f'Новых постов в группе {group_name} не найдено.')
-            return
+            return f'Новых постов в группе {group_name} не найдено.'
 
         print(f'Найдено {len(new_posts_id)} новых постов в группе {group_name}.')
 
