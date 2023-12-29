@@ -437,7 +437,7 @@ def vk_parser(group_name):
     src = req.json()
 
     if os.path.exists(f'{group_name}'):
-        return f'Директория группы {group_name} существует.'
+        print(f'Директория группы {group_name} существует.')
     else:
         os.mkdir(group_name)
 
