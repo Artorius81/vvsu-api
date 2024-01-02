@@ -453,6 +453,8 @@ def get_internet_pay(html):
 
 
 def get_traffic(html):
+    tree = etree.fromstring(html, etree.HTMLParser())
+
     month_dict = {
         "янв": "01",
         "фев": "02",
@@ -468,15 +470,16 @@ def get_traffic(html):
         "дек": "12"
     }
 
-    def transform_date(input_date):
+    def transform_date(input_date, condition):
         current_year = datetime.now().year
         month_num = month_dict.get(input_date)
         if month_num is None:
             return "Неверный месяц"
-        formatted_date = f"{month_num}-{current_year}"
+        if condition:
+            formatted_date = f"{month_num}-{current_year}"
+        else:
+            formatted_date = f"{month_num}-{current_year - 1}"
         return formatted_date
-
-    tree = etree.fromstring(html, etree.HTMLParser())
 
     tab_names_xpath = "//*[@id='tabs']/div/ul/li/a/b/text()"
 
@@ -490,7 +493,7 @@ def get_traffic(html):
         tab_data = [{"period": alternative_tab_name}]
     else:
         last_name = tab_names[-1]
-        last_name_transformed = transform_date(last_name)
+        last_name_transformed = transform_date(last_name, False)
 
         tab_content_xpath = f"//*[@id='tabs-{last_name_transformed}']//text()"
 
@@ -508,6 +511,25 @@ def get_traffic(html):
             tab_data.append(tab_entry)
 
     data = tab_data
+
+    if not data:
+        last_name = tab_names[-1]
+        last_name_transformed = transform_date(last_name, True)
+
+        tab_content_xpath = f"//*[@id='tabs-{last_name_transformed}']//text()"
+
+        content_elements = tree.xpath(tab_content_xpath)
+        cleaned_content = [item.strip() for item in content_elements if
+                           item.strip() and item.strip() not in excluded_headers]
+
+        tab_data = []
+
+        for i in range(0, len(cleaned_content), 2):
+            tab_entry = {
+                "period": cleaned_content[i] if i < len(cleaned_content) else "Данные по интернет-трафику отсутствуют",
+                "traffic": cleaned_content[i + 1] if i + 1 < len(cleaned_content) else ""
+            }
+            tab_data.append(tab_entry)
 
     return data
 
