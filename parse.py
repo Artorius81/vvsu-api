@@ -478,7 +478,8 @@ def get_traffic(html):
         if condition:
             formatted_date = f"{month_num}-{current_year}"
         else:
-            formatted_date = f"{month_num}-{current_year - 1}"
+            # formatted_date = f"{month_num}-{current_year - 1}" ваще не помню че это потом разобраться
+            formatted_date = f"{month_num}-{current_year}"
         return formatted_date
 
     tab_names_xpath = "//*[@id='tabs']/div/ul/li/a/b/text()"
