@@ -157,17 +157,22 @@ def get_results(html):
 def get_curriculum(html):
     tree = etree.fromstring(html, etree.HTMLParser())
     semester_div_ids = tree.xpath("//*[@id='PlanDetails']//div[contains(@id, 'tabs-')]/@id")
+    #print(semester_div_ids)
     semester_wise_data = {}
 
     for div_id in semester_div_ids:
-        rows = tree.xpath(f"//div[@id='{div_id}']//tr")
+        rows = tree.xpath(f"//div[@id='{div_id}']//tr") #/div/table/tbody/tr[1]
         data = []
 
         for row in rows[1:]:
             discipline = row.xpath("td[1]//text()")
+            #print(discipline)
             department = row.xpath("td[2]//text()")
+            #print(department)
             teacher_elements = row.xpath("(td[3]//a[1]/text() | td[3]//text()[1]) | (td[3]//a[1] | td[3])")
-            attestation = row.xpath("td[contains(@class, 'text-left')]/text()")
+            #print(teacher_elements)
+            attestation = row.xpath("td[contains(@class, 'text-center')]/text()")
+            #print(attestation)
 
             if discipline:
                 disciplines = ' '.join(discipline).strip()
@@ -197,7 +202,7 @@ def get_curriculum(html):
                 teachers = None
 
             if attestation:
-                filtered_attestation = [a for a in attestation if a in ["Э", "З", "ДЗ", "ЗП", "ЗПб"]]
+                filtered_attestation = [a for a in attestation if a in ["Э", "З", "КР", "Р", "ЗП", "УП", "ПП", "НИП", "КЭ", "ЗНР", "ЗВР", "НИР", "ДЗ"]]
                 if filtered_attestation:
                     attestations = filtered_attestation[0]
                 else:
@@ -206,7 +211,7 @@ def get_curriculum(html):
                 attestations = None
 
             # Check if all values are None and skip the entry if true
-            if all(val is None for val in [teachers, disciplines, departments, attestations]):
+            if all(val is None for val in [teachers, disciplines, attestations]):
                 continue
 
             entry = {
