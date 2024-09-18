@@ -263,6 +263,8 @@ def get_main(html):
     tree = etree.fromstring(html, etree.HTMLParser())
     fio = tree.xpath("/html/body/div[3]/div/div[1]/div/div[1]/div/div/div[1]/div/h1/text()")
     email = tree.xpath("/html/body/div[3]/div/div[1]/div/div[1]/div/div/div[2]/div[1]/div[2]/a/text()")
+    gradebook = tree.xpath("/html/body/div[3]/div/div[1]/div/div[1]/div/div/div[3]/div[2]/div[2]/a/text()")
+    gradebook_url = tree.xpath("/html/body/div[3]/div/div[1]/div/div[1]/div/div/div[3]/div[2]/div[2]/a/@href")
     group = tree.xpath("/html/body/div[3]/div/div[1]/div/div[1]/div/div/div[3]/div[1]/div[2]/text()")
 
     additional_info_parts = tree.xpath(
@@ -281,6 +283,8 @@ def get_main(html):
     data = {
         "fullname": fio[0].strip() if fio else None,
         "email": email[0],
+        "gradebook": gradebook[0],
+        "gradebook_url": "https://cabinet.vvsu.ru" + gradebook_url[0],
         "group": group[0].strip() if group else None,
         "specialty": additional_info_field1,
         "institute": additional_info_field2,
