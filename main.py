@@ -1159,6 +1159,11 @@ def api_projects():
     return jsonify(result)
 
 
+@app.route("/")
+def hello_world():
+    return "<p>Hello, World!</p>"
+
+
 @app.route('/api/vk_parse', methods=['GET'])
 def api_vk_parse():
     return vk_parser(group_name)
