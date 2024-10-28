@@ -1165,4 +1165,4 @@ def api_vk_parse():
 
 
 if __name__ == '__main__':
-    app.run(port=8888, debug=False)
+    app.run(host="46.16.36.180", port=8888, debug=False)
