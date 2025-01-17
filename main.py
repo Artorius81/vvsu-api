@@ -903,13 +903,7 @@ def api_results():
         login = data['username']
         password = data['password']
 
-        if validate_remote_login(login, password):
-            result = results(login, password)
-        else:
-            result = {
-                'status': 'error',
-                'message': 'Неверный логин или пароль.'
-            }
+        result = results(login, password)
     else:
         result = {
             'status': 'error',
