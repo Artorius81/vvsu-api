@@ -17,7 +17,7 @@ from datetime import datetime
 
 from CONSTANTS import *
 
-from functions import validate_remote_login, make_cache_key
+from functions import make_cache_key
 from parse import get_results, get_time_table, get_curriculum, get_group, get_main, get_grants, get_payment, \
     get_dormitory, get_internet_pay, get_traffic, get_projects, get_forms
 
@@ -921,13 +921,7 @@ def api_time_table():
         login = data['username']
         password = data['password']
 
-        if validate_remote_login(login, password):
-            result = time_table(login, password)
-        else:
-            result = {
-                'status': 'error',
-                'message': 'Неверный логин или пароль.'
-            }
+        result = time_table(login, password)
     else:
         result = {
             'status': 'error',
@@ -945,13 +939,7 @@ def api_curriculum():
         login = data['username']
         password = data['password']
 
-        if validate_remote_login(login, password):
-            result = curriculum(login, password)
-        else:
-            result = {
-                'status': 'error',
-                'message': 'Неверный логин или пароль.'
-            }
+        result = curriculum(login, password)
     else:
         result = {
             'status': 'error',
@@ -969,13 +957,7 @@ def api_my_group():
         login = data['username']
         password = data['password']
 
-        if validate_remote_login(login, password):
-            result = my_group(login, password)
-        else:
-            result = {
-                'status': 'error',
-                'message': 'Неверный логин или пароль.'
-            }
+        result = my_group(login, password)
     else:
         result = {
             'status': 'error',
@@ -993,13 +975,7 @@ def api_payment():
         login = data['username']
         password = data['password']
 
-        if validate_remote_login(login, password):
-            result = payment(login, password)
-        else:
-            result = {
-                'status': 'error',
-                'message': 'Неверный логин или пароль.'
-            }
+        result = payment(login, password)
     else:
         result = {
             'status': 'error',
@@ -1017,13 +993,7 @@ def api_grants():
         login = data['username']
         password = data['password']
 
-        if validate_remote_login(login, password):
-            result = grants(login, password)
-        else:
-            result = {
-                'status': 'error',
-                'message': 'Неверный логин или пароль.'
-            }
+        result = grants(login, password)
     else:
         result = {
             'status': 'error',
@@ -1041,13 +1011,7 @@ def api_dormitory():
         login = data['username']
         password = data['password']
 
-        if validate_remote_login(login, password):
-            result = dormitory(login, password)
-        else:
-            result = {
-                'status': 'error',
-                'message': 'Неверный логин или пароль.'
-            }
+        result = dormitory(login, password)
     else:
         result = {
             'status': 'error',
@@ -1065,13 +1029,7 @@ def api_internet_pay():
         login = data['username']
         password = data['password']
 
-        if validate_remote_login(login, password):
-            result = internet_pay(login, password)
-        else:
-            result = {
-                'status': 'error',
-                'message': 'Неверный логин или пароль.'
-            }
+        result = internet_pay(login, password)
     else:
         result = {
             'status': 'error',
@@ -1089,13 +1047,7 @@ def api_internet_traffic():
         login = data['username']
         password = data['password']
 
-        if validate_remote_login(login, password):
-            result = traffic(login, password)
-        else:
-            result = {
-                'status': 'error',
-                'message': 'Неверный логин или пароль.'
-            }
+        result = traffic(login, password)
     else:
         result = {
             'status': 'error',
@@ -1113,13 +1065,7 @@ def api_forms():
         login = data['username']
         password = data['password']
 
-        if validate_remote_login(login, password):
-            result = forms(login, password)
-        else:
-            result = {
-                'status': 'error',
-                'message': 'Неверный логин или пароль.'
-            }
+        result = forms(login, password)
     else:
         result = {
             'status': 'error',
@@ -1137,13 +1083,7 @@ def api_projects():
         login = data['username']
         password = data['password']
 
-        if validate_remote_login(login, password):
-            result = projects(login, password)
-        else:
-            result = {
-                'status': 'error',
-                'message': 'Неверный логин или пароль.'
-            }
+        result = projects(login, password)
     else:
         result = {
             'status': 'error',
